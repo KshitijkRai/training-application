@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+{{/*Go to sign up page on click*/}}
+<a href="/signup">Click to sign up</a>
+<br>
+{{/*Go to login page on click*/}}
+<a href="/login">Click to login</a>
+<br>
+<br>
+<table style="width:100%">
+    <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+    {{/*    range is a loop that loops through the passed value. In this case the value is a struct.*/}}
+    {{range .}}
+        <tr>
+            <td>{{.Firstname}}</td>
+            <td>{{.Lastname}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.Password}}</td>
+        </tr>
+    {{end}}
+</table>
+</body>
+</html>

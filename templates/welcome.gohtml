@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<a href="/logout">Click to logout</a>
+<br>
+<p>Welcome</p>
+<br>
+<table style="width:100%">
+    <tr>
+        <th>Session ID</th>
+        <th>User ID</th>
+    </tr>
+    {{/*    range is a loop that loops through the passed value. In this case the value is map which has key value pair.*/}}
+    {{range $key, $val := .}}
+        <tr>
+            <td>{{$key}}</td>
+            <td>{{$val}}</td>
+        </tr>
+    {{end}}
+</table>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif
+        }
+    </style>
+</head>
+<body>
+{{/*Go to homepage on click*/}}
+<a href="/index">Click to go to homepage</a>
+<br>
+<br>
+<form method="post">
+    <fieldset>
+        <legend>Sign up</legend>
+        <label>
+            Firstname:
+            <input
+                    autocomplete="on"
+                    autofocus
+                    maxlength="25"
+                    name="firstname"
+                    placeholder="Firstname"
+                    required
+                    type="text"
+            >
+        </label>
+        <br>
+        <label>
+            Lastname:
+            <input
+                    autocomplete="on"
+                    maxlength="25"
+                    name="lastname"
+                    placeholder="Lastname"
+                    required
+                    type="text"
+            >
+        </label>
+        <br>
+        <label>
+            Email:
+            <input
+                    autocomplete="on"
+                    maxlength="25"
+                    name="email"
+                    placeholder="example@example.com"
+                    required
+                    type="email"
+            >
+        </label>
+        <br>
+        <label>
+            Password:
+            <input
+                    autocomplete="on"
+                    maxlength="10"
+                    minlength="5"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    type="password"
+            >
+        </label>
+        <br>
+        {{/*        To submit form, always use field type submit.*/}}
+        <input type="submit" value="Submit">
+    </fieldset>
+</form>
+</body>
+</html>
