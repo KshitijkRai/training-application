@@ -53,7 +53,19 @@ func init() {
 		log.Fatal(err)
 	}
 	fmt.Println("Successfully connected to database")
-	fmt.Println(db.Stats())
+
+	_, err = db.Exec("DROP TABLE IF EXISTS user_login;")
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS user_login (
+	firstname VARCHAR(25) NOT NULL,
+	lastname  VARCHAR(25) NOT NULL,
+	email     VARCHAR(25) NOT NULL CONSTRAINT user_login_pk PRIMARY KEY,
+	password  VARCHAR(255) NOT NULL);`)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
@@ -76,6 +88,11 @@ func main() {
 }
 
 func index(writer http.ResponseWriter, request *http.Request) {
+	// Go to welcome page if user is already logged in
+	if alreadyLoggedIn(request) {
+		http.Redirect(writer, request, "/welcome", http.StatusSeeOther)
+		return
+	}
 	err := tpl.ExecuteTemplate(writer, "index.gohtml", dbSessions)
 	if err != nil {
 		panic(err)
@@ -249,6 +266,11 @@ func signup(writer http.ResponseWriter, request *http.Request) {
 }
 
 func welcome(writer http.ResponseWriter, request *http.Request) {
+	// Go to welcome page if user is already logged in
+	if !alreadyLoggedIn(request) {
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
 	// Query executes a query that returns rows, typically a SELECT. The args are for any placeholder parameters in the query.
 	// func (db *DB) Query(query string, args ...interface{}) (*Rows, error)
 	rows, err := db.Query("SELECT * FROM user_login;")

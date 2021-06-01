@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-
     <style>
         * {
             font-family: 'Roboto', sans-serif
         }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
-<a href="/index">Click to go to homepage</a>
+<a href="/">Click to go to homepage</a>
 <br>
 <br>
 <form action="/login" method="post">
     <fieldset>
         <legend>Login</legend>
-        <label>
-            Email:
+        <div>
+            <label for="email">Email:</label>
             <input
                     autocomplete="on"
                     {{/*                    Always user maxlength and minlength to validate input value*/}}
@@ -34,10 +38,9 @@
                     {{/*                    Type of field is email*/}}
                     type="email"
             >
-        </label>
-        <br>
-        <label>
-            Password:
+        </div>
+        <div>
+            <label for="password">Password:</label>
             <input
                     autocomplete="on"
                     maxlength="10"
@@ -48,7 +51,7 @@
                     {{/*                    Type of field is password*/}}
                     type="password"
             >
-        </label>
+        </div>
         <br>
         <input type="submit" value="Submit">
     </fieldset>
