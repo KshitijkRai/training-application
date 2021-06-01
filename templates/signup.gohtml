@@ -9,6 +9,12 @@
         * {
             font-family: 'Roboto', sans-serif
         }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -19,8 +25,8 @@
 <form method="post">
     <fieldset>
         <legend>Sign up</legend>
-        <label>
-            Firstname:
+        <div>
+            <label>Firstname:</label>
             <input
                     autocomplete="on"
                     autofocus
@@ -30,10 +36,9 @@
                     required
                     type="text"
             >
-        </label>
-        <br>
-        <label>
-            Lastname:
+        </div>
+        <div>
+            <label>Lastname:</label>
             <input
                     autocomplete="on"
                     maxlength="25"
@@ -42,10 +47,9 @@
                     required
                     type="text"
             >
-        </label>
-        <br>
-        <label>
-            Email:
+        </div>
+        <div>
+            <label>Email:</label>
             <input
                     autocomplete="on"
                     maxlength="25"
@@ -54,10 +58,9 @@
                     required
                     type="email"
             >
-        </label>
-        <br>
-        <label>
-            Password:
+        </div>
+        <div>
+            <label>Password:</label>
             <input
                     autocomplete="on"
                     maxlength="10"
@@ -67,10 +70,11 @@
                     required
                     type="password"
             >
-        </label>
-        <br>
+        </div>
         {{/*        To submit form, always use field type submit.*/}}
-        <input type="submit" value="Submit">
+        <div>
+            <input type="submit" value="Submit">
+        </div>
     </fieldset>
 </form>
 </body>
