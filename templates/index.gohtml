@@ -27,18 +27,13 @@
 <br>
 <table style="width:100%">
     <tr>
-        <th>Firstname</th>
-        <th>Lastname</th>
-        <th>Email</th>
-        <th>Password</th>
+        <th>Key</th>
+        <th>Value</th>
     </tr>
-    {{/*    range is a loop that loops through the passed value. In this case the value is a struct.*/}}
-    {{range .}}
+    {{range $key, $val := .}}
         <tr>
-            <td>{{.Firstname}}</td>
-            <td>{{.Lastname}}</td>
-            <td>{{.Email}}</td>
-            <td>{{.Password}}</td>
+            <td>{{$key}}</td>
+            <td>{{$val}}</td>
         </tr>
     {{end}}
 </table>

@@ -20,18 +20,20 @@
 <body>
 <a href="/logout">Click to logout</a>
 <br>
-<p>Welcome</p>
 <br>
 <table style="width:100%">
     <tr>
-        <th>Session ID</th>
-        <th>User ID</th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+        <th>Password</th>
     </tr>
-    {{/*    range is a loop that loops through the passed value. In this case the value is map which has key value pair.*/}}
-    {{range $key, $val := .}}
+    {{range .}}
         <tr>
-            <td>{{$key}}</td>
-            <td>{{$val}}</td>
+            <td>{{.Firstname}}</td>
+            <td>{{.Lastname}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.Password}}</td>
         </tr>
     {{end}}
 </table>
