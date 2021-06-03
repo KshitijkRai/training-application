@@ -1,14 +1,19 @@
 package main
 
 import (
+	"crypto/sha1"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // User type
@@ -78,6 +83,19 @@ func main() {
 	http.HandleFunc("/logout", logout)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/welcome", welcome)
+	http.HandleFunc("/upload", upload)
+	// Add route to serve pics
+	// func StripPrefix(prefix string, h Handler) Handler
+	http.Handle(
+		"/public/",
+		// StripPrefix returns a handler that serves HTTP requests by removing the given prefix from the request
+		// URL's Path (and RawPath if set) and invoking the handler h.
+		// func StripPrefix(prefix string, h Handler) Handler
+		http.StripPrefix(
+			"/public",
+			// func FileServer(root FileSystem) Handler
+			// FileServer returns a handler that serves HTTP requests with the contents of the file system rooted at root.
+			http.FileServer(http.Dir("./public"))))
 
 	// Handle registers the handler for the given pattern in the DefaultServeMux
 	// func Handle(pattern string, handler Handler)
@@ -342,4 +360,77 @@ func getUser(writer http.ResponseWriter, request *http.Request) User {
 		panic(err)
 	}
 	return user
+}
+
+func upload(writer http.ResponseWriter, request *http.Request) {
+	cookie, err := request.Cookie("session")
+	if err != nil {
+		sessionId := uuid.NewV4()
+		cookie := &http.Cookie{
+			Name:     "session",
+			Value:    sessionId.String(),
+			HttpOnly: true,
+		}
+		http.SetCookie(writer, cookie)
+	}
+
+	if request.Method == http.MethodPost {
+		// FormFile returns the first file for the provided form key. FormFile calls ParseMultipartForm and ParseForm if necessary.
+		// func (r *Request) FormFile(key string) (multipart.File, *multipart.FileHeader, error)
+		myFile, myFileHeader, err := request.FormFile("myFile")
+		if err != nil {
+			panic(err)
+		}
+		defer myFile.Close()
+
+		// Returns file extension
+		extension := strings.Split(myFileHeader.Filename, ".")[1]
+
+		// Create new hash
+		newHash := sha1.New()
+
+		// Copy copies from src to dst until either EOF is reached on src or an error occurs.
+		// It returns the number of bytes copied and the first error encountered while copying, if any.
+		// func Copy(dst Writer, src Reader) (written int64, err error)
+		io.Copy(newHash, myFile)
+
+		// Sprintf formats according to a format specifier and returns the resulting string.
+		// func Sprintf(format string, a ...interface{}) string
+		myFileName := fmt.Sprintf("%x", newHash.Sum(nil)) + "." + extension
+
+		// Getwd returns a rooted path name corresponding to the current directory.
+		// func Getwd() (dir string, err error)
+		workingDirectory, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+
+		// Join joins any number of path elements into a single path, separating them with an OS specific Separator.
+		// Empty elements are ignored. The result is Cleaned.
+		// func Join(elem ...string) string
+		path := filepath.Join(workingDirectory, "public", "pics", myFileName)
+
+		// Create creates or truncates the named file. If the file already exists, it is truncated.
+		// If the file does not exist, it is created with mode 0666 (before umask).
+		// func Create(name string) (*File, error)
+		myNewFile, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		defer myNewFile.Close()
+
+		myFile.Seek(0, 0)
+		io.Copy(myNewFile, myFile)
+
+		str := cookie.Value
+		if !strings.Contains(str, myFileName) {
+			str += "|" + myFileName
+		}
+
+		cookie.Value = str
+		// Set cookie
+		http.SetCookie(writer, cookie)
+	}
+	splitStrings := strings.Split(cookie.Value, "|")
+	tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings)
 }
