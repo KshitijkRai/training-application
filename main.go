@@ -437,5 +437,5 @@ func upload(writer http.ResponseWriter, request *http.Request) {
 		http.SetCookie(writer, cookie)
 	}
 	splitStrings := strings.Split(cookie.Value, "|")
-	tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings)
+	tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings[1:])
 }
