@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+// User type
 type User struct {
 	Firstname string
 	Lastname  string
@@ -37,6 +38,7 @@ the follow criteria is met:
 */
 var dbSessions = map[string]string{} // sessionId, userId
 
+// init function always runs once
 func init() {
 	// Must is a helper that wraps a call to a function returning (*Template, error) and panics if the error is non-nil
 	// func Must(t *Template, err error) *Template
@@ -50,13 +52,11 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	// Ping verifies a connection to the database is still alive, establishing a connection if necessary
 	// func (db *DB) Ping() error
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Println("Successfully connected to database")
 
 	_, err = db.Exec("DROP TABLE IF EXISTS user_login;")
@@ -64,10 +64,10 @@ func init() {
 		panic(err)
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS user_login (
-    							firstname VARCHAR(25) NOT NULL,
-								lastname  VARCHAR(25) NOT NULL,
-								email     VARCHAR(25) NOT NULL CONSTRAINT user_login_pk PRIMARY KEY,
-								password  VARCHAR(255) NOT NULL);`)
+	firstname VARCHAR(25) NOT NULL,
+	lastname  VARCHAR(25) NOT NULL,
+	email     VARCHAR(25) NOT NULL CONSTRAINT user_login_pk PRIMARY KEY,
+	password  VARCHAR(255) NOT NULL);`)
 	if err != nil {
 		panic(err)
 	}
@@ -156,8 +156,14 @@ func login(writer http.ResponseWriter, request *http.Request) {
 		// Create session id
 		sessionId := uuid.NewV4()
 
-		// Create and set cookie
-		cookie := createCookie(sessionId.String())
+		// Create cookie
+		cookie := &http.Cookie{
+			Name:     "session",
+			Value:    sessionId.String(),
+			HttpOnly: true,
+		}
+
+		// Set cookie
 		http.SetCookie(writer, cookie)
 
 		// Save session
@@ -252,8 +258,14 @@ func signup(writer http.ResponseWriter, request *http.Request) {
 		// Creating UUID Version 4
 		sessionId := uuid.NewV4()
 
-		// Create & set cookie
-		cookie := createCookie(sessionId.String())
+		// Create cookie
+		cookie := &http.Cookie{
+			Name:     "session",
+			Value:    sessionId.String(),
+			HttpOnly: true,
+		}
+
+		// Set cookie
 		http.SetCookie(writer, cookie)
 
 		// dbSessions[key: d90af075-3969-44c9-8d4c-08d9858bdbd8] = value: test@test.com
@@ -426,20 +438,4 @@ func upload(writer http.ResponseWriter, request *http.Request) {
 	}
 	splitStrings := strings.Split(cookie.Value, "|")
 	tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings)
-}
-
-func createCookie(sessionId string) *http.Cookie {
-	cookie := &http.Cookie{
-		Name:  "session",
-		Value: sessionId,
-	}
-	return cookie
-}
-
-func getCookie(request *http.Request) *http.Cookie {
-	cookie, err := request.Cookie("session")
-	if err != nil {
-		panic(err)
-	}
-	return cookie
 }
