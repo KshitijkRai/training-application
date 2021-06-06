@@ -1,66 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Roboto', sans-serif
-        }
+{{define "login"}}
+    <p>Login to your account</p>
+    <form action="/login" method="post">
+        <label for="email">Email:</label>
+        <input
+                autocomplete="on"
+                {{/*                    Always user maxlength and minlength to validate input value*/}}
+                maxlength="15"
+                minlength="1"
+                {{/*                    name is used by the server side code to retrive the field value*/}}
+                name="email"
+                placeholder="example@example.com"
+                required
+                {{/*                    Type of field is email*/}}
+                type="email"
+        >
+        <label for="password">Password:</label>
+        <input
+                autocomplete="on"
+                maxlength="10"
+                minlength="1"
+                name="password"
+                placeholder="Password"
+                required
+                {{/*                    Type of field is password*/}}
+                type="password"
+        >
+        <input type="submit" value="Submit">
+    </form>
 
-        div {
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: inline-block;
-            width: 150px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-<a href="/">Click to go to homepage</a>
-<br>
-<br>
-<form action="/login" method="post">
-    <fieldset>
-        <legend>Login</legend>
-        <div>
-            <label for="email">Email:</label>
-            <input
-                    autocomplete="on"
-                    {{/*                    Always user maxlength and minlength to validate input value*/}}
-                    maxlength="15"
-                    minlength="1"
-                    {{/*                    name is used by the server side code to retrive the field value*/}}
-                    name="email"
-                    placeholder="example@example.com"
-                    required
-                    {{/*                    Type of field is email*/}}
-                    type="email"
-            >
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input
-                    autocomplete="on"
-                    maxlength="10"
-                    minlength="1"
-                    name="password"
-                    placeholder="Password"
-                    required
-                    {{/*                    Type of field is password*/}}
-                    type="password"
-            >
-        </div>
-        <div>
-            <label></label>
-            <input type="submit" value="Submit">
-        </div>
-    </fieldset>
-</form>
-</body>
-</html>
+{{end}}

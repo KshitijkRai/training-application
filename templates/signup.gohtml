@@ -1,34 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Roboto', sans-serif
-        }
+{{define "signup"}}
 
-        div {
-            margin-bottom: 10px;
-        }
- action="/login"
-        label {
-            display: inline-block;
-            width: 150px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-{{/*Go to homepage on click*/}}
-<a href="/">Click to go to homepage</a>
-<br>
-<br>
-<form  action="/signup" method="post">
-    <fieldset>
-        <legend>Sign up</legend>
+    <p>Register a new account</p>
+    <form action="/signup" method="post">
+
         <div>
             <label>Firstname:</label>
             <input
@@ -80,7 +54,6 @@
             <label></label>
             <input type="submit" value="Submit">
         </div>
-    </fieldset>
-</form>
-</body>
-</html>
+    </form>
+
+{{end}}

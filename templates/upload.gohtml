@@ -12,16 +12,9 @@
     </style>
 </head>
 <body>
-{{/*Go to sign up page on click*/}}
-<a href="/signup">Click to sign up</a>
-<br>
-{{/*Go to login page on click*/}}
-<a href="/login">Click to login</a>
-<br>
-<h1>Your Pictures:</h1>
+<p>Your Pictures:</p>
 {{range .}}
-    <h1>{{.}}</h1>
-    <img src="/public/pics/{{.}}" width="400px">
+    <img src="/public/pics/{{.}}" height="300px" width="400px">
 {{end}}
 
 <form action="/upload" method="post" enctype="multipart/form-data">

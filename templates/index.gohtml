@@ -10,30 +10,18 @@
             font-family: 'Roboto', sans-serif
         }
 
-        table, th, td {
+        th, td {
             border: 1px solid black;
         }
     </style>
 </head>
 <body>
-{{/*Go to sign up page on click*/}}
-<a href="/signup">Click to sign up</a>
-<br>
-{{/*Go to login page on click*/}}
-<a href="/login">Click to login</a>
-<br>
-<br>
-<table style="width:100%">
-    <tr>
-        <th>Key</th>
-        <th>Value</th>
-    </tr>
-    {{range $key, $val := .}}
-        <tr>
-            <td>{{$key}}</td>
-            <td>{{$val}}</td>
-        </tr>
-    {{end}}
-</table>
+{{template "login"}}
+<hr>
+{{template "signup"}}
+<hr>
+{{if .}}
+    {{template "sessions" .}}
+{{end}}
 </body>
 </html>

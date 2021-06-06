@@ -18,15 +18,18 @@ import (
 
 // User type
 type User struct {
-	Firstname string
-	Lastname  string
-	Email     string
-	Password  string
+	UserId     int64
+	ProfilePic string
+	Firstname  string
+	Lastname   string
+	Email      string
+	Password   string
+	Bio        string
 }
 
 var tpl *template.Template      // *template.Template is like a container that holds all the templates
 var db *sql.DB                  // Database pointer
-var dbUsers = map[string]User{} // userId, user
+var dbUsers = map[string]User{} // userEmail, user
 
 /*
 A session variable is a special type of variable whose value is maintained across subsequent web pages.
@@ -42,7 +45,7 @@ var dbSessions = map[string]string{} // sessionId, userId
 func init() {
 	// Must is a helper that wraps a call to a function returning (*Template, error) and panics if the error is non-nil
 	// func Must(t *Template, err error) *Template
-	tpl = template.Must(template.ParseGlob("templates/*"))
+	tpl = template.Must(template.ParseGlob("templates/*.gohtml"))
 
 	// Database connection
 	var err error
@@ -58,19 +61,6 @@ func init() {
 		log.Fatal(err)
 	}
 	fmt.Println("Successfully connected to database")
-
-	_, err = db.Exec("DROP TABLE IF EXISTS user_login;")
-	if err != nil {
-		panic(err)
-	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS user_login (
-	firstname VARCHAR(25) NOT NULL,
-	lastname  VARCHAR(25) NOT NULL,
-	email     VARCHAR(25) NOT NULL CONSTRAINT user_login_pk PRIMARY KEY,
-	password  VARCHAR(255) NOT NULL);`)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func main() {
@@ -131,13 +121,13 @@ func login(writer http.ResponseWriter, request *http.Request) {
 		// Check if userId already exists
 		// QueryRow executes a query that is expected to return at most one row
 		// func (db *DB) QueryRow(query string, args ...interface{}) *Row
-		rows := db.QueryRow("SELECT * FROM user_login WHERE email = $1;", enteredEmail)
+		rows := db.QueryRow("SELECT * FROM ta_user WHERE email = $1;", enteredEmail)
 
 		var user User
 		// Scan copies the columns from the matched row into the values pointed at by dest
 		// func (r *Row) Scan(dest ...interface{}) error
-		err := rows.Scan(&user.Firstname, &user.Lastname, &user.Email, &user.Password)
-		fmt.Println(user)
+		err := rows.Scan(&user.UserId, &user.ProfilePic, &user.Firstname, &user.Lastname, &user.Email, &user.Password,
+			&user.Bio)
 		// ErrNoRows is returned by Scan when QueryRow doesn't return a row
 		// var ErrNoRows error = errors.New("sql: no rows in result set")
 		if err == sql.ErrNoRows {
@@ -206,7 +196,7 @@ func logout(writer http.ResponseWriter, request *http.Request) {
 	http.SetCookie(writer, cookie)
 
 	// Redirect to login page
-	http.Redirect(writer, request, "/login", http.StatusSeeOther)
+	http.Redirect(writer, request, "/", http.StatusSeeOther)
 	return
 }
 
@@ -224,16 +214,17 @@ func signup(writer http.ResponseWriter, request *http.Request) {
 		password := request.FormValue("password")
 
 		// Check if userId already exists
-		rows := db.QueryRow("SELECT email FROM user_login WHERE email = $1;", email)
+		rows := db.QueryRow("SELECT email FROM ta_user WHERE email = $1;", email)
 
-		var userId string
+		var userEmail string
 		// Scan copies the columns from the matched row into the values pointed at by dest
 		// func (r *Row) Scan(dest ...interface{}) error
-		err := rows.Scan(&userId)
+		err := rows.Scan(&userEmail)
 		// ErrNoRows is returned by Scan when QueryRow doesn't return a row
 		// var ErrNoRows error = errors.New("sql: no rows in result set")
 		if err != sql.ErrNoRows {
-			panic("User id not available")
+			fmt.Fprintf(writer, "%v already exists", email)
+			return
 		}
 
 		// Encrypt password
@@ -245,12 +236,12 @@ func signup(writer http.ResponseWriter, request *http.Request) {
 			panic(err)
 		}
 
-		// Create new user
-		newUser := User{firstname, lastname, email, string(encryptedPassword)}
-
 		// func (s *Stmt) Exec(args ...interface{}) (Result, error)
-		_, err = db.Exec("INSERT INTO user_login (firstname, lastname, email, password) VALUES ($1, $2, $3, $4);",
-			newUser.Firstname, newUser.Lastname, newUser.Email, newUser.Password)
+		_, err = db.Exec("INSERT INTO ta_user (profile_pic, firstname, lastname, email, password, bio) VALUES ($1, "+
+			"$2, "+
+			"$3, $4, $5, $6);",
+			"3ce03cb82293dd0b17029bb64692f134a3f406db.png", firstname, lastname, email, encryptedPassword,
+			"Write something about yourself")
 		if err != nil {
 			panic(err)
 		}
@@ -289,29 +280,27 @@ func welcome(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/", http.StatusSeeOther)
 		return
 	}
-	// Query executes a query that returns rows, typically a SELECT. The args are for any placeholder parameters in the query.
-	// func (db *DB) Query(query string, args ...interface{}) (*Rows, error)
-	rows, err := db.Query("SELECT * FROM user_login;")
+
+	cookie, err := request.Cookie("session")
 	if err != nil {
 		panic(err)
 	}
-	defer rows.Close()
+	// Query executes a query that returns rows, typically a SELECT. The args are for any placeholder parameters in the query.
+	// func (db *DB) Query(query string, args ...interface{}) (*Rows, error)
+	rows := db.QueryRow("SELECT * FROM ta_user WHERE email = $1;", dbSessions[cookie.Value])
 
 	var user User
-	// func (rs *Rows) Next() bool
-	users := make([]User, 0)
-	for rows.Next() {
-		// Scan copies the columns in the current row into the values pointed at by dest.
-		// The number of values in dest must be the same as the number of columns in Rows.
-		// func (rs *Rows) Scan(dest ...interface{}) error
-		err := rows.Scan(&user.Firstname, &user.Lastname, &user.Email, &user.Password)
-		if err != nil {
-			panic(err)
-		}
-		users = append(users, user)
+	// Scan copies the columns from the matched row into the values pointed at by dest
+	// func (r *Row) Scan(dest ...interface{}) error
+	err = rows.Scan(&user.UserId, &user.ProfilePic, &user.Firstname, &user.Lastname, &user.Email, &user.Password,
+		&user.Bio)
+	// ErrNoRows is returned by Scan when QueryRow doesn't return a row
+	// var ErrNoRows error = errors.New("sql: no rows in result set")
+	if err == sql.ErrNoRows {
+		panic(err)
 	}
 
-	err = tpl.ExecuteTemplate(writer, "welcome.gohtml", users)
+	err = tpl.ExecuteTemplate(writer, "welcome.gohtml", user)
 	if err != nil {
 		panic(err)
 	}
@@ -323,7 +312,7 @@ func alreadyLoggedIn(request *http.Request) bool {
 		return false
 	}
 
-	rows := db.QueryRow("SELECT * FROM user_login WHERE email = $1;", dbSessions[cookie.Value])
+	rows := db.QueryRow("SELECT * FROM ta_user WHERE email = $1;", dbSessions[cookie.Value])
 
 	var user User
 	err = rows.Scan(&user)
@@ -347,7 +336,7 @@ func getUser(writer http.ResponseWriter, request *http.Request) User {
 
 	// QueryRow executes a query that is expected to return at most one row
 	// func (db *DB) QueryRow(query string, args ...interface{}) *Row
-	rows := db.QueryRow("SELECT * FROM user_login WHERE email = $1;", cookie.Value)
+	rows := db.QueryRow("SELECT * FROM ta_user WHERE email = $1;", cookie.Value)
 
 	var user User
 	// Scan copies the columns from the matched row into the values pointed at by dest
@@ -437,5 +426,8 @@ func upload(writer http.ResponseWriter, request *http.Request) {
 		http.SetCookie(writer, cookie)
 	}
 	splitStrings := strings.Split(cookie.Value, "|")
-	tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings[1:])
+	err = tpl.ExecuteTemplate(writer, "upload.gohtml", splitStrings[1:])
+	if err != nil {
+		fmt.Fprintln(writer, err)
+	}
 }

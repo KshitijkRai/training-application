@@ -10,30 +10,25 @@
             font-family: 'Roboto', sans-serif
         }
 
-        table, th, td {
+        th, td {
             border: 1px solid black;
         }
     </style>
 </head>
 <body>
-<a href="/logout">Click to logout</a>
-<br>
-<br>
-<table style="width:100%">
-    <tr>
-        <th>Firstname</th>
-        <th>Lastname</th>
-        <th>Email</th>
-        <th>Password</th>
-    </tr>
-    {{range .}}
-        <tr>
-            <td>{{.Firstname}}</td>
-            <td>{{.Lastname}}</td>
-            <td>{{.Email}}</td>
-            <td>{{.Password}}</td>
-        </tr>
-    {{end}}
-</table>
+<a href="/logout">Logout</a>
+<a href="/edit">Edit profile</a>
+<hr>
+<p><strong>PROFILE</strong></p>
+<img src="/public/pics/{{.ProfilePic}}" height="100px" width="100px" alt="{{.ProfilePic}}">
+<p>About: {{.Bio}}</p>
+<hr>
+<p><strong>USER DETAILS</strong></p>
+<p>User ID: {{.UserId}}</p>
+<p>Firstname: {{.Firstname}}</p>
+<p>Lastname: {{.Lastname}}</p>
+<p>Email: {{.Email}}</p>
+<p>Password: {{.Password}}</p>
+<hr>
 </body>
 </html>
